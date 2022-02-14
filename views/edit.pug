@@ -24,7 +24,7 @@ block main
 									span(class="edit-num")= Number (index +1)+"#"
 									input(id="article"+Number (index +1) type="text" name="product" placeholder="nombre del articulo" value=item)
 									input(id="mount"+Number (index +1) oninput="changeMount(this)" type="number" name="amount" placeholder="cantidad de articulos" value=sale.amount[index]) 
-									input(id="price"+Number (index +1) step="0.01" type="number" oninput="converToBs(this)" name="priceDolar" placeholder="precio del articulo $" value=sale.priceDolar[index])
+									input(id="price"+Number (index +1) step="0.01" type="number" oninput="converToBs(this)" name="priceDolar" placeholder="precio $" value=sale.priceDolar[index])
 									input(id="priceBs"+Number (index +1) step="0.01" type="number" name="priceBs" placeholder="monto bs" readonly value=sale.priceBs[index])
 									input(id="priceTotalDolar"+Number (index +1) step="0.01" type="number" name="priceTotalDolar" placeholder="total $" readonly value=sale.priceTotalDolar[index])
 									input(id="priceTotalBs"+Number (index +1) step="0.01" type="number" name="priceTotalBs" placeholder="monto Bs" readonly value=sale.priceTotalBs[index])

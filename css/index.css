@@ -216,7 +216,7 @@ a{
 
 .content-articles input{
 	margin-top: 5px;
-	width: 130px;
+	width: 120px;
 	height: 25px;
 }
 .article{
@@ -302,7 +302,7 @@ a{
 .camps span{
 	display: inline-Block;
 	text-align: center;
-	width: 130px;
+	width: 120px;
 }
 
 .price-total-dolar{
@@ -347,9 +347,7 @@ a{
 
 .fecha{
 	 display: inline-block;
-    white-space: nowrap;
-    overflow: hidden;
-    max-width: 120.5px;
+  
 }
 
 .delete-sell{
