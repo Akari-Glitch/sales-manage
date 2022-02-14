@@ -1,0 +1,137 @@
+extends ../templates/template
+
+block main
+	a(href="/inventario" class="btn-back") Volver
+	-const tasaDolar= sale.priceBs[0]/sale.priceDolar[0]
+	div(class="calc-contain-tasa-dolar")
+		label(for="tasa-dolar") Tasa del Dolar
+		input(type="number" id="tasa-dolar" class="calc-tasa-dolar" placeholder="Ingrese tasa del dólar actual..." name="tasa-dolar" value=tasaDolar step="0.01" readonly)
+	form(action="/edit/"+sale._id method="POST" class="form-inv" id="form")
+				div(class="form-content")
+					div(id="content-inputs" class="content-inputs")
+						label(for="client") Nombre del Cliente
+						input(id="client" type="text" autocomplete="off" name="client" placeholder="nombre del cliente" value=sale.client)
+						div(class="camps")
+							span(class="articulo-camp") Articulo
+							span(class="mount-camp") Cantidad
+							span(class="priceDolar-camp") Precio $
+							span(class="priceBs-camp") Precio Bs
+							span(class="totalDolar-camp") Monto $
+							span(class="totalBs-camp") Monto Bs
+						div(id="content-articles" class="content-articles")
+							each item, index in sale.product
+								div(id="article"+Number(index+1) class="article")
+									span(class="edit-num")= Number (index +1)+"#"
+									input(id="article"+Number (index +1) type="text" name="product" placeholder="nombre del articulo" value=item)
+									input(id="mount"+Number (index +1) oninput="changeMount(this)" type="number" name="amount" placeholder="cantidad de articulos" value=sale.amount[index]) 
+									input(id="price"+Number (index +1) step="0.01" type="number" oninput="converToBs(this)" name="priceDolar" placeholder="precio del articulo $" value=sale.priceDolar[index])
+									input(id="priceBs"+Number (index +1) step="0.01" type="number" name="priceBs" placeholder="monto bs" readonly value=sale.priceBs[index])
+									input(id="priceTotalDolar"+Number (index +1) step="0.01" type="number" name="priceTotalDolar" placeholder="total $" readonly value=sale.priceTotalDolar[index])
+									input(id="priceTotalBs"+Number (index +1) step="0.01" type="number" name="priceTotalBs" placeholder="monto Bs" readonly value=sale.priceTotalBs[index])
+									button(onClick="removeArticle(this)" class="btn-delete-art") eliminar
+					div(class="input-total")
+						input(class="total-dolar" id="monto-total-dolar" step="0.01" type="number" name="priceTotalAllDolar" placeholder="total $"  readonly value=`${sale.priceTotalAllDolar}`)
+						input(class="total-bs" id="monto-total-bs" step="0.01" type="number" name="priceTotalAllBs"  placeholder="total Bs" readonly value=`${sale.priceTotalAllBs}`) 
+					
+					div(class="content-btn")
+						button(type="button" onClick="addNewArticle()") agregar nuevo articulo
+						button(type="submit") Editar venta
+						button(type="button" onClick="hiddenForm()") 
+							a(href="/inventario") Cancelar
+						a(href="/delete/"+sale._id class="delete-sell") Eliminar venta
+	script.
+
+			const formContain = document.getElementById("form-contain")
+			const form = document.getElementById('form')
+			const inputs = document.getElementById('content-articles')
+			const tasaDolar = document.getElementById('tasa-dolar')
+			let bs;
+			const getCount = document.getElementById('content-articles').lastChild.id.slice(7)
+			let count = Number(getCount)
+			const montoTotalDolar = document.getElementById("monto-total-dolar")
+			const montoTotalBs = document.getElementById('monto-total-bs')
+
+			function addNewArticle(){
+				count++;
+				let div = document.createElement('div');
+				div.setAttribute('class', 'article')
+					div.innerHTML = `
+					<div class="article">	
+					<span>${count}#</span>
+					<input id="article${count}"" type="text" name="product" placeholder="nombre del articulo"></input>
+					<input id="mount${count}" oninput="changeMount(this)" type="number" name="amount" placeholder="cantidad de articulos"></input>
+					<input id="price${count}" step="0.01" type="number" oninput="converToBs(this)" name="priceDolar" placeholder="precio del articulo $"></input>
+					<input id="priceBs${count}" step="0.01" type="number" name="priceBs" placeholder="monto bs" readonly>
+					<input id="priceTotalDolar${count}" step="0.01" type="number" name="priceTotalDolar" placeholder="total $" readonly>
+					<input id="priceTotalBs${count}" step="0.01" type="number" name="priceTotalBs" placeholder="monto Bs" readonly>
+
+						<button onClick="removeArticle(this)" class="btn-delete-art">eliminar</button>
+					</div>	
+						`
+
+
+					inputs.appendChild(div)
+				
+			}
+
+
+			
+			function removeArticle(e){
+				count--
+				e.parentElement.remove()
+				changeTotal();
+			}
+
+			function showForm(){
+				if(formContain.style.display === 'none'){
+					formContain.style.display = 'block'
+				}
+			}
+
+			function hiddenForm(){
+				if(formContain.style.display === 'block'){
+					formContain.style.display = 'none'
+				}
+			}
+
+			function changeTotal(){
+				let count = 1;
+				let suma = 0;
+			
+				do{
+					let input = document.getElementById(`priceTotalDolar${count}`)
+					if(input == null){
+						count = -2
+					}else{
+					suma = Number(suma) + Number(input.value)
+
+					}
+					
+					count++;
+				}
+				while(count > -1)
+				
+				montoTotalDolar.value = suma.toFixed(2);
+				montoTotalBs.value = (montoTotalDolar.value * tasaDolar.value).toFixed(2)
+			}
+
+			function converToBs(e){
+				const getCount = e.id.slice(5)
+				const mount = document.getElementById(`mount${getCount}`)
+				const priceBs = document.getElementById(`priceBs${getCount}`)
+				const priceTotalBs = document.getElementById(`priceTotalBs${getCount}`)
+				const priceTotalDolar = document.getElementById(`priceTotalDolar${getCount}`)
+				const priceDolar = document.getElementById(`price${getCount}`)
+
+				priceBs.value =  (tasaDolar.value*e.value).toFixed(2)
+				priceTotalBs.value = ((tasaDolar.value * e.value) * mount.value).toFixed(2)
+				priceTotalDolar.value = (priceDolar.value * mount.value).toFixed(2) 
+				changeTotal()
+			}
+
+			function changeMount(e){
+			const getCount = e.id.slice(5)
+			const priceDolar = document.getElementById(`price${getCount}`)
+			converToBs(priceDolar)
+		}
+

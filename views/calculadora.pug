@@ -1,0 +1,174 @@
+extends ../templates/template
+
+block main
+	a(href="/index" class="btn-back") Volver
+	div(class="change-calc")
+		button(class ="calc-btn" onClick="changeCalc()") Cambiar calculadora
+	div(class="calc-normal" id="calc-normal")
+		h1(class="calc-title") Calculadora
+		div(class="container")
+			div(class="calculadora")
+				div(class='display')
+					div(id="valor-anterior")
+					div(id="valor-actual")
+				button(class="col-2" onClick="display.borrarTodo()") C
+				button(onClick="display.borrar()") &#129044;
+				button(class="operador" value="dividir") %
+				button(class="numero") 7
+				button(class="numero") 8
+				button(class="numero") 9
+				button(class="operador" value="multiplicar") X
+				button(class="numero") 4
+				button(class="numero") 5
+				button(class="numero") 6
+				button(class="operador" value="restar") -
+				button(class="numero") 1
+				button(class="numero") 2
+				button(class="numero") 3
+				button(class="operador" value="sumar") +
+				button(class="col-2 numero") 0
+				button(class="numero") .
+				button(class="operador" value="igual") =	
+
+
+	div(class="calc-system" id="calc-system")
+		h1(class="calc-title") Calculadora del Sistema
+		div(class="form-content")
+			div(class="content-inputs")
+				div(class="camps")
+									span(class="articulo-camp") Articulo
+									span(class="mount-camp") Cantidad
+									span(class="priceDolar-camp") Precio $
+									span(class="priceBs-camp") Precio Bs
+									span(class="totalDolar-camp") Monto $
+									span(class="totalBs-camp") Monto Bs
+				div(class="content-articles calc-content-articles")
+					div(class="article")
+						input(id="article" type="text" placeholder="nombre del articulo")
+						input(id="mount" oninput="changeMount(this)" type="number" placeholder="cantidad de articulos") 
+						input(id="price" step="0.01" type="number" oninput="converToBs(this)" name="priceDolar" placeholder="precio del articulo $")
+						input(id="priceBs" step="0.01" type="number" placeholder="monto bs" readonly)
+						input(id="priceTotalDolar" step="0.01" type="number" placeholder="total $" readonly)
+						input(id="priceTotalBs" step="0.01" type="number" placeholder="monto Bs" readonly)
+				input(type="number" class="tasa-dolar-calc" id="tasa-dolar" placeholder="Ingrese tasa del dólar actual..." name="tasa-dolar" step="0.01")
+
+		script.
+				const tasaDolar = document.getElementById('tasa-dolar')
+				const calcNormal = document.getElementById('calc-normal')
+				const calcSystem = document.getElementById('calc-system')
+				calcNormal.style.display = "none"
+
+				function changeCalc(){
+
+					if(calcNormal.style.display === 'none'){
+					calcNormal.style.display = "block"
+					calcSystem.style.display= "none"
+					}else{
+					calcNormal.style.display = "none"
+					calcSystem.style.display= "block"
+					}
+
+				}
+				function converToBs(e){
+					const mount = document.getElementById(`mount`)
+					const priceBs = document.getElementById('priceBs')
+					const priceTotalBs = document.getElementById('priceTotalBs')
+					const priceTotalDolar = document.getElementById('priceTotalDolar')
+
+					priceBs.value = tasaDolar.value * e.value
+					priceTotalBs.value = (tasaDolar.value * e.value) * mount.value
+					priceTotalDolar.value = e.value * mount.value 
+				}
+
+
+				function changeMount(e){
+				const getCount = e.id.slice(5)
+				converToBs(document.getElementById(`price${getCount}`))
+				}
+				class Display{
+					constructor(displayValorAnterior, displayValorActual) {
+				        this.displayValorActual = displayValorActual;
+				        this.displayValorAnterior = displayValorAnterior;
+				        this.calculador = new Calculadora();
+				        this.tipoOperacion = undefined;
+				        this.valorActual = '';
+				        this.valorAnterior = '';
+				        this.signos = {
+				            sumar: '+',
+				            dividir: '%',
+				            multiplicar: 'x',
+				            restar: '-', 
+				        }
+				}	
+			    borrar() {
+			        this.valorActual = this.valorActual.toString().slice(0,-1);
+			        this.imprimirValores();
+			    }
+
+			    borrarTodo() {
+			        this.valorActual = '';
+			        this.valorAnterior = '';
+			        this.tipoOperacion = undefined;
+			        this.imprimirValores();
+			    }
+
+			    computar(tipo) {
+			        this.tipoOperacion !== 'igual' && this.calcular();
+			        this.tipoOperacion = tipo;
+			        this.valorAnterior = this.valorActual || this.valorAnterior;
+			        this.valorActual = '';
+			        this.imprimirValores();
+			    }
+
+			    agregarNumero(numero) {
+			        if(numero === '.' && this.valorActual.includes('.')) return
+			        this.valorActual = this.valorActual.toString() + numero.toString();
+			        this.imprimirValores();
+			    }
+
+			    imprimirValores() {
+			        this.displayValorActual.textContent = this.valorActual;
+			        this.displayValorAnterior.textContent = `${this.valorAnterior} ${this.signos[this.tipoOperacion] || ''}`;
+			    }
+
+			    calcular() {
+			        const valorAnterior = parseFloat(this.valorAnterior);
+			        const valorActual = parseFloat(this.valorActual);
+
+			        if( isNaN(valorActual)  || isNaN(valorAnterior) ) return
+			        this.valorActual = this.calculador[this.tipoOperacion](valorAnterior, valorActual);
+			    }
+				}
+
+				class Calculadora {
+			    sumar(num1, num2) {
+			        return num1 + num2;
+			    }
+
+			    restar(num1, num2) {
+			        return num1 - num2;
+			    }
+
+			    dividir(num1, num2) {
+			        return num1 / num2;
+			    }
+
+			    multiplicar(num1, num2) {
+			        return num1 * num2;
+			    }
+				} 
+
+				const displayValorAnterior = document.getElementById('valor-anterior');
+				const displayValorActual = document.getElementById('valor-actual');
+				const botonesNumeros = document.querySelectorAll('.numero');
+				const botonesOperadores = document.querySelectorAll('.operador');
+
+				const display = new Display(displayValorAnterior, displayValorActual);
+
+				botonesNumeros.forEach(boton => {
+				    boton.addEventListener('click', () => display.agregarNumero(boton.innerHTML));
+				});
+
+				botonesOperadores.forEach(boton => {
+				    boton.addEventListener('click', () => display.computar(boton.value))
+				});

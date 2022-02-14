@@ -1,0 +1,18 @@
+doctype
+html(lang="es")
+	head
+		meta(charset="UTF-8")
+		meta(name="viewport" content="width=device-width, initial-scale=1.0")
+		meta(http-equiv="X-UA-Compatible" content="ie=edge")
+		title PuntoMarket
+		style
+			include ../css/index.css
+	div(class="signin-contain")
+		h1(class="title-signin") Bienvenido, PuntoMarket!
+			form(action="/" method="POST" class="form-signin")
+				input(type="text" autocomplete="off" name="username" placeholder="ingrese el usuario del administrador" class="input-signin")
+				input(type="password" autocomplete="off" name="password" placeholder="ingrese la clave del administrador" class="input-signin")
+
+				button(type="submit" class="enter-signin") Entrar
+				if signinMessage 
+					div(class="error-signin") #{signinMessage}
